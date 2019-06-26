@@ -8,10 +8,24 @@ function [x] = sparse_quadratic_solver(model, varargin)
 %   min   (1/2)*x'*H*x + f'*x
 %   st    lb <= x <= ub
 %
-% NOTE: THIS SOLVER IS AN ALPHA VERSION / PROTOTYPE
+% INPUT:
+%   model = struct('type', type, 
+%                  'H', H, 'f', f, 'lb', lb, 'ub', ub,  % for box-qp
+%                  'A', A, 'b', b, 'lambda', lambda,  % for LASSO
+%                  'verbosity', verbosity);
+%   type        'box_qp' or 'lasso'
+%   verbosity   0: no display
+%               1: only final results
+%               2: iterate results
+%
+% OUTPUT:
+%   x           solution
+%   
+%
+% NOTE: THIS SOLVER IS AN ALPHA VERSION / PROTOTYPE based on the
+%       qualifying exam paper: 
 %
 % FUTURE MODIFICATIONS:
-%   + Finish coding for l1_reg model
 %   
 %   + Do continuation scheme for all 3 methods
 %     + l1 versions are the same

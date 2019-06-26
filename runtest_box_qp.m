@@ -44,9 +44,15 @@ results.model = struct('type', 'box_qp', ...
 SQS_opts = struct('disp', disp, ...
    'apg_tol', 1e-2, 'apg_maxiters', 500, 'diff_tol', 0, ...
    'cg_tol', 1e-6, 'cg_maxiters', 20, 'main_tol', 1e-12);
-
+if disp == 2
+   options = optimoptions('quadprog','Display','iter');
+elseif disp == 1
+   options = optimoptions('quadprog','Display','final');
+else
+   options = optimoptions('quadprog','Display','none');
+end
 tic;
-[x_quadprog] = quadprog(H, f, [], [], [], [], lb, ub);
+[x_quadprog] = quadprog(H, f, [], [], [], [], lb, ub, [], options);
 time_qp = toc;
 results.quadprog = struct('x', x_quadprog);
 
@@ -55,22 +61,26 @@ tic;
 time_sqs = toc;
 results.box_qp = struct('x', x);
 
-fprintf('quadprog runtime %2.5f sec\n', time_qp)
-fprintf('SQS runtime      %2.5f sec\n', time_sqs)
+if disp >= 1
+   fprintf('quadprog runtime %2.5f sec\n', time_qp)
+   fprintf('SQS runtime      %2.5f sec\n', time_sqs)
 obj_sqs = get_objective(results.model, x);
 obj_qp = get_objective(results.model, x_quadprog);
-if obj_sqs < obj_qp
-  fprintf('SQS more accurate: %1.3e\n', obj_qp - obj_sqs)
-else
-  fprintf('quadprog more accurate: %1.3e\n', obj_sqs - obj_qp)
 end
 
-if time_sqs < time_qp
-  fprintf('SQS faster: %1.2f%% less runtime\n', abs(time_sqs - time_qp) / time_qp)
-else
-  fprintf('quadprog faster: %1.2f%% less runtime\n', abs(time_sqs - time_qp) / time_sqs)
+if disp >= 1
+   if obj_sqs < obj_qp
+     fprintf('SQS more accurate: %1.3e\n', obj_qp - obj_sqs)
+   else
+     fprintf('quadprog more accurate: %1.3e\n', obj_sqs - obj_qp)
+   end
+   if time_sqs < time_qp
+     fprintf('SQS faster: %1.2f%% less runtime\n', abs(time_sqs - time_qp) / time_qp)
+   else
+     fprintf('quadprog faster: %1.2f%% less runtime\n', abs(time_sqs - time_qp) / time_sqs)
+   end
 end
-
+   
 end
 
 
