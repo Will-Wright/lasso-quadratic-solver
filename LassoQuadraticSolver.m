@@ -1,4 +1,4 @@
-function [x] = sparse_quadratic_solver(model, varargin)
+function [x, res, data] = LassoQuadraticSolver(model, varargin)
 % This algorithm solves the the lasso problem
 %
 %   min   (1/2)*||Ax - b||^2_2 + lambda*||x||_1
@@ -22,8 +22,8 @@ function [x] = sparse_quadratic_solver(model, varargin)
 %   x           solution
 %   
 %
-% NOTE: THIS SOLVER IS AN ALPHA VERSION / PROTOTYPE based on the
-%       qualifying exam paper: 
+% NOTE: THIS SOLVER IS AN ALPHA VERSION / PROTOTYPE based on the qualifying exam paper
+%       https://github.com/Will-Wright/lasso-quadratic-solver/blob/master/will_wright_qualifying_exam_proposal.pdf
 %
 % FUTURE MODIFICATIONS:
 %   
@@ -43,14 +43,15 @@ import util.*;
 
 ip = inputParser;
 ip.addParameter('apg_maxiters', 500); 
-ip.addParameter('apg_tol', 1e-2);
+ip.addParameter('apg_tol', 1e-3);
 % terminates accel_prox_grad if active_set_diff/opts.n < active_set_diff_tol
 ip.addParameter('diff_tol', 0); % [0,1], or -1 for termination only on residual
 ip.addParameter('main_maxiters', 100);
 ip.addParameter('main_num_pg_steps', 1);
+ip.addParameter('Newton_step_min', 1e-4);
 ip.addParameter('cg_tol', 1e-6);
-ip.addParameter('cg_maxiters', 12);
-ip.addParameter('main_tol', 1e-12);
+ip.addParameter('cg_maxiters', 20);
+ip.addParameter('main_tol', 1e-9);
 ip.addParameter('x0', []);
 ip.addParameter('disp', 0)
 ip.parse(varargin{:});
@@ -60,6 +61,7 @@ opts.apg_tol = ip.Results.apg_tol;
 opts.diff_tol = ip.Results.diff_tol;
 opts.main_loop_maxiters = ip.Results.main_maxiters;
 opts.main_num_pg_steps = ip.Results.main_num_pg_steps;
+opts.Newton_step_min = ip.Results.Newton_step_min;
 opts.cg_tol = ip.Results.cg_tol;
 opts.cg_maxiters = ip.Results.cg_maxiters;
 opts.main_tol = ip.Results.main_tol;
@@ -76,7 +78,7 @@ elseif strcmp(model.type, 'lasso')
    Hess_fun = @(x) model.A'*(model.A*x);
    q_vec = -model.A'*model.b;
 else
-   fprintf('Incorrect model type passed\n')
+   fprintf('Incorrect model type passed.  Program exited.\n')
    return
 end
 
@@ -97,28 +99,39 @@ opts.eig_max = eigs(Hess_fun, opts.n, k, sigma, eigs_opts);
 opts.eig_max = opts.eig_max * 0.9;
 gamma = 1/opts.eig_max;   % forward-backward envelope parameter, in (0, 1/eig_max(H))
 
-if opts.disp
-   PrintBanner(1);
+if opts.disp == 2
+   print_banner(1);
+elseif opts.disp == 1
+   if strcmp(model.type, 'box_qp')
+      fprintf('\nSolver called for quadratic program\n')
+   elseif strcmp(model.type, 'lasso')
+      fprintf('\nSolver called for lasso problem\n')
+   end
 end
 
 tic;
 
-[x, res_norm, bool_active_prev] = accel_prox_grad(model, Hess_fun, q_vec, x0, opts, gamma);
+[x, res_norm, bool_active_prev, num_iters_apg] = accel_prox_grad(model, Hess_fun, q_vec, x0, opts, gamma);
 
-if opts.disp && opts.main_loop_maxiters > 0
-   PrintBanner(2);
+if (opts.disp == 2) && opts.main_loop_maxiters > 0
+   print_banner(2);
 end
 
 iter = 1;
+tau = 1; % steplength for Newton step in main loop below
+res = [];
 
 % TODO: Fix this Mat-Mat mult.  Allow for passing functions At and A
 if strcmp(model.type, 'lasso')
    AtA = model.A'*model.A;
 end
 
-while (iter <= opts.main_loop_maxiters) && (res_norm > opts.main_tol)
+while (iter <= opts.main_loop_maxiters) && (res_norm >= opts.main_tol) ...
+      && (tau >= opts.Newton_step_min)
    %  Computes prox-grad step to update x and active/inactive indices
-   [x_pg, res, bool_active, idx_act, idx_inact] = prox_grad_step(model, Hess_fun, q_vec, x, gamma); 
+   for i = 1:opts.main_num_pg_steps
+      [x_pg, res, bool_active, idx_act, idx_inact] = prox_grad_step(model, Hess_fun, q_vec, x, gamma); 
+   end
    
    d_act = x_pg(idx_act, 1) - x(idx_act, 1);
    if strcmp(model.type, 'lasso')
@@ -146,13 +159,13 @@ while (iter <= opts.main_loop_maxiters) && (res_norm > opts.main_tol)
    end
    x = x + tau*d;
    
-   if opts.disp
-      obj = get_objective(model, Hess_fun, q_vec, x);
-      active_set_diff = sum(abs(bool_active - bool_active_prev));
-      num_active = sum(bool_active);
-      num_inactive = opts.n - num_active;
-      res_norm = norm(res);
-      PrintIter(iter, model, obj, res_norm, active_set_diff, num_inactive, num_active, tau);
+   obj = get_objective(model, Hess_fun, q_vec, x);
+   active_set_diff = sum(abs(bool_active - bool_active_prev));
+   num_active = sum(bool_active);
+   num_inactive = opts.n - num_active;
+   res_norm = norm(res);
+   if opts.disp == 2
+      print_iter(iter, model, obj, res_norm, active_set_diff, num_inactive, num_active, tau);
    end
 
    bool_active_prev = bool_active;
@@ -160,6 +173,34 @@ while (iter <= opts.main_loop_maxiters) && (res_norm > opts.main_tol)
 
 end
 
+
+if strcmp(model.type, 'lasso')
+   x_idx = (x ~= 0);
+   x_temp = model.A(:,x_idx)\model.b;
+   x = zeros(opts.n,1);
+   x(x_idx) = x_temp;
+end
+
+if (res_norm < opts.main_tol)
+   if opts.disp >= 1
+      fprintf('EXIT - OPTIMAL SOLUTION FOUND\n')
+   end
+   data.term_cond = 'opt';
+elseif (tau < opts.Newton_step_min)
+   if opts.disp >= 1
+      fprintf('EXIT - MINIMUM STEPLENGTH MET\n')
+   end
+   data.term_cond = 'min_step';
+elseif (iter > opts.main_loop_maxiters)
+   if opts.disp >= 1
+      fprintf('EXIT - MAXIMUM ITERATIONS MET\n')
+   end
+   data.term_cond = 'max_iters';
+end
+
+
+data.num_iters = iter;
+data.num_iters_apg = num_iters_apg;
 
 end  %  end function sparse_quadratic_solver
 

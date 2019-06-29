@@ -5,7 +5,7 @@ f_grad = Hx + q_vec;
 if strcmp(model.type, 'box_qp')
  f_obj = 0.5*(x'*(Hx)) + q_vec'*x;
 elseif strcmp(model.type, 'lasso')
- f_obj = 0.5*norm(model.A*x - model.b)^2 + model.lambda*norm(x, 1);
+ f_obj = 0.5*(norm(model.A*x - model.b)^2) + model.lambda*norm(x, 1);
 end
 
 P = get_P(model, f_grad, x, gamma);

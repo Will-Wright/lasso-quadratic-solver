@@ -5,6 +5,8 @@ function [x_proj, bool_active, idx_active, idx_inactive] = project_soft_threshol
   bool_inactive = ~bool_active;
   x_proj(bool_inactive) = sign(x(bool_inactive)).*(abs(x(bool_inactive)) - model.lambda*gamma);
   
+  %x_proj_test = sign(x).*max(abs(x) - model.lambda*gamma, 0);  
+  
   if nargout > 2
     idx_active = find(bool_active == 1);
     idx_inactive = find(bool_active == 0);

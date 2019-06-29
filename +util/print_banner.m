@@ -1,4 +1,4 @@
-function [] = PrintBanner(phase_num)
+function [] = print_banner(phase_num)
   if phase_num == 1
     fprintf('\n');
     fprintf('                        Sparse Quadratic Solver\n');
