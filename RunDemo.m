@@ -1,6 +1,8 @@
 function [data] = RunDemo()
 
 import util.*;
+import test.*;
+
 
 num_tests_max = 10;
 n_range = 100:100:2000;
