@@ -17,6 +17,9 @@ The main function `LassoQuadraticSolver` is based on a smoothing method which wa
 
 In the [qualifying exam proposal](https://github.com/Will-Wright/lasso-quadratic-solver/blob/master/will_wright_qualifying_exam_proposal.pdf) we prove that the two methods developed above are equal (note that the lasso problem must be in the Lagrangian form for this equivalence, see page 8-9 of the proposal).
 
+**Note that the solver `LassoQuadraticSover` is a prototype and may require additional parameter tuning for general use or ill-conditioned lasso/quadratic programs.**
+
+
 ### New Contributions:
 
 * Proof of equivalence of two methods
