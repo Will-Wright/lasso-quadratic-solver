@@ -33,7 +33,7 @@ In my [qualifying exam proposal](https://github.com/Will-Wright/lasso-quadratic-
 ## Demo Tutorial
 
 
-The following results may be reproduced by running the function `RunDemo`.  Note that the LASSO and quadratic programming experiments are entirely separate.  The results below are back-to-back for comparison purposes.
+The following results may be reproduced by running the function `RunDemo`.  Note that the LASSO and quadratic programming experiments are entirely separate in the code above.  The results below are back-to-back for comparison purposes.
 
 
 First, we see that runtime for `LassoQuadraticSolver` increases approximately linearly with dimension `n`, while runtime for the MATLAB functions `quadprog` and `lasso` increases exponentially.  This difference is a result of `quadprog` and `lasso` relying on interior-point methods, thus requiring matrix factorization which scales at `O(n^3)`.  The main computational cost in `LassoQuadraticSolver` is a sparse matrix-vector product which scales much better.
