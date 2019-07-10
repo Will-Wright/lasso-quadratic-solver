@@ -23,20 +23,25 @@ In the [qualifying exam proposal](https://github.com/Will-Wright/lasso-quadratic
 
 * Implementation of `LassoQuadraticSolver` method in MATLAB
 
-* Numerical results demonstrating that `LassoQuadraticSolver` is faster than the MATLAB built-in software [lasso](https://www.mathworks.com/help/stats/lasso.html) and [quadprog](https://www.mathworks.com/help/optim/ug/quadprog.html)
+* Numerical results demonstrating that `LassoQuadraticSolver` is **faster** and **more accurate** than the MATLAB built-in software [lasso](https://www.mathworks.com/help/stats/lasso.html) and [quadprog](https://www.mathworks.com/help/optim/ug/quadprog.html) for a range of randomly generated problems.
 
 
 
 ## Demo Tutorial
 
-DIMENSION
+
+The following results may be reproduced by running the function `RunDemo`.  Note that the LASSO and quadratic programming experiments are entirely separate.  The results below are back-to-back for comparison purposes.
+
+
+First, we see that `LassoQuadraticSolver` runtime increases approximately linearly with dimension `n`, while the MATLAB functions `quadprog` and `lasso` runtime increases exponentially.  This difference is a result of `quadprog` and `lasso` relying on interior-point methods, thus requiring matrix factorization which scales at `O(n^3)`  
 
 <p align="center">
 <img src="LQS_results_plot-dimension.png">
 </p>
 
 
-SPARSITY
+Next, we see that `LassoQuadraticSolver` runtime is consistently less than `quadprog` and `lasso` 
+
 
 <p align="center">
 <img src="LQS_results_plot-sparsity.png">
