@@ -31,5 +31,9 @@ In the [qualifying exam proposal](https://github.com/Will-Wright/lasso-quadratic
 
 
 
+<p align="center">
+<img src="LQS_results_plot.png">
+</p>
+
 
 
