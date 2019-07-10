@@ -35,5 +35,4 @@ In the [qualifying exam proposal](https://github.com/Will-Wright/lasso-quadratic
 <img src="LQS_results_plot-dimension.png">
 </p>
 
-![](./LQS_results_plot-dimension.png =250x)
 
