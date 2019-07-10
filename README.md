@@ -33,14 +33,14 @@ In the [qualifying exam proposal](https://github.com/Will-Wright/lasso-quadratic
 The following results may be reproduced by running the function `RunDemo`.  Note that the LASSO and quadratic programming experiments are entirely separate.  The results below are back-to-back for comparison purposes.
 
 
-First, we see that `LassoQuadraticSolver` runtime increases approximately linearly with dimension `n`, while the MATLAB functions `quadprog` and `lasso` runtime increases exponentially.  This difference is a result of `quadprog` and `lasso` relying on interior-point methods, thus requiring matrix factorization which scales at `O(n^3)`  
+First, we see that runtime for `LassoQuadraticSolver` increases approximately linearly with dimension `n`, while runtime for the MATLAB functions `quadprog` and `lasso` increases exponentially.  This difference is a result of `quadprog` and `lasso` relying on interior-point methods, thus requiring matrix factorization which scales at `O(n^3)`.  The main computational cost in `LassoQuadraticSolver` is a sparse matrix-vector product which scales much better.
 
 <p align="center">
 <img src="LQS_results_plot-dimension.png">
 </p>
 
 
-Next, we see that `LassoQuadraticSolver` runtime is consistently less than `quadprog` and `lasso` 
+Next, we see that runtime for `LassoQuadraticSolver` is consistently less than `quadprog` and `lasso`, regardless of the sparsity level of the underlying problem.
 
 
 <p align="center">
@@ -48,7 +48,8 @@ Next, we see that `LassoQuadraticSolver` runtime is consistently less than `quad
 </p>
 
 
-ACCURACY
+Finally, we see that `LassoQuadraticSolver` is more accurate than `lasso` and `quadprog` for this set of problems.  This difference in accuracy is again a result of `lasso` and `quadprog` relying on interior-point methods which are limited to square-root machine precision.  In contrast, `LassoQuadraticSolver` can attain machine-precision accuracy because this method operates somewhat like an active set method (e.g., the simplex method) which can precisely locate the exact
+solution once the correct active set is found.
 
 <p align="center">
 <img src="LQS_results_plot-accuracy.png">
