@@ -104,7 +104,7 @@ save(file_name, 'data')
 if plot_main_fig
 
 figure;
-subplot(2,3,1)
+subplot(1,2,1)
 sp=2; 
 plot(data.qp.n_range, data.qp.lqs_time_mean(:,sp), 'o'); 
 hold on; 
@@ -114,31 +114,7 @@ xlabel('Dimension')
 ylabel('Time (seconds)')
 legend('LQS', 'quadprog-MATLAB')
 
-
-subplot(2,3,2)
-sp=2; 
-plot(data.qp.n_range, data.qp.lqs_res_mean(:,sp), 'o'); 
-hold on; 
-plot(data.qp.n_range, data.qp.qp_res_mean(:,sp), '*');
-title('QP: Accuracy vs Size')
-xlabel('Dimension')
-ylabel('Residual')
-legend('LQS', 'quadprog-MATLAB')
-
-
-
-subplot(2,3,3)
-n_idx = 20;
-plot(data.qp.sparsity_ratio_range, data.qp.lqs_time_mean(n_idx,:), 'o'); 
-hold on; 
-plot(data.qp.sparsity_ratio_range, data.qp.qp_time_mean(n_idx,:), '*');
-title('QP: Runtime vs Sparsity')
-xlabel('Sparsity Ratio')
-ylabel('Time (seconds)')
-legend('LQS', 'quadprog-MATLAB')
-
-
-subplot(2,3,4)
+subplot(1,2,2)
 sp=2; 
 plot(data.lasso.n_range, data.lasso.lqs_time_mean(:,sp), 'o'); 
 hold on; 
@@ -149,7 +125,18 @@ ylabel('Time (seconds)')
 legend('LQS', 'lasso-MATLAB')
 
 
-subplot(2,3,5)
+figure;
+subplot(1,2,1)
+sp=2; 
+plot(data.qp.n_range, data.qp.lqs_res_mean(:,sp), 'o'); 
+hold on; 
+plot(data.qp.n_range, data.qp.qp_res_mean(:,sp), '*');
+title('QP: Accuracy vs Size')
+xlabel('Dimension')
+ylabel('Residual')
+legend('LQS', 'quadprog-MATLAB')
+
+subplot(1,2,2)
 sp=2; 
 plot(data.lasso.n_range, data.lasso.lqs_obj_mean(:,sp), 'o'); 
 hold on; 
@@ -160,7 +147,20 @@ ylabel('Objective Value')
 legend('LQS', 'lasso-MATLAB')
 
 
-subplot(2,3,6)
+
+
+figure;
+subplot(1,2,1)
+n_idx = 20;
+plot(data.qp.sparsity_ratio_range, data.qp.lqs_time_mean(n_idx,:), 'o'); 
+hold on; 
+plot(data.qp.sparsity_ratio_range, data.qp.qp_time_mean(n_idx,:), '*');
+title('QP: Runtime vs Sparsity')
+xlabel('Sparsity Ratio')
+ylabel('Time (seconds)')
+legend('LQS', 'quadprog-MATLAB')
+
+subplot(1,2,2)
 n_idx = 20;
 plot(data.lasso.sparsity_ratio_range, data.lasso.lqs_time_mean(n_idx,:), 'o'); 
 hold on; 
@@ -169,6 +169,9 @@ title('LASSO: Runtime vs Sparsity')
 xlabel('Sparsity Ratio')
 ylabel('Time (seconds)')
 legend('LQS', 'lasso-MATLAB')
+
+
+
 
 end
 
