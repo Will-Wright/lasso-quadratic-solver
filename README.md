@@ -29,10 +29,25 @@ In the [qualifying exam proposal](https://github.com/Will-Wright/lasso-quadratic
 
 ## Demo Tutorial
 
-
+DIMENSION
 
 <p align="center">
 <img src="LQS_results_plot-dimension.png">
 </p>
+
+
+SPARSITY
+
+<p align="center">
+<img src="LQS_results_plot-sparsity.png">
+</p>
+
+
+ACCURACY
+
+<p align="center">
+<img src="LQS_results_plot-accuracy.png">
+</p>
+
 
 
