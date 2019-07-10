@@ -22,7 +22,7 @@ In my [qualifying exam proposal](https://github.com/Will-Wright/lasso-quadratic-
 
 ### New Contributions:
 
-* Proof of equivalence of two methods
+* Proof of equivalence of the two methods listed above
 
 * Implementation of `LassoQuadraticSolver` method in MATLAB
 
